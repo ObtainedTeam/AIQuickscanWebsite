@@ -34,7 +34,7 @@ def clean_text(text: str) -> str:
 
 def extract_page_data(url: str, html: str) -> dict:
     """Extract structured data from a single HTML page."""
-    soup = BeautifulSoup(html, "lxml")
+    soup = BeautifulSoup(html, "html.parser")
 
     # Remove noise
     for tag in soup(["script", "style", "noscript", "svg", "iframe", "nav", "footer", "header"]):
@@ -101,7 +101,7 @@ def extract_page_data(url: str, html: str) -> dict:
 
 def get_internal_links(base_url: str, html: str) -> list[str]:
     """Extract internal links from a page, limited to same domain."""
-    soup = BeautifulSoup(html, "lxml")
+    soup = BeautifulSoup(html, "html.parser")
     domain = urlparse(base_url).netloc
     links = []
     for a in soup.find_all("a", href=True):
