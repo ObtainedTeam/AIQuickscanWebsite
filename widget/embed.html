@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Quick Scan — Obtained.eu</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: transparent;
+    }
+
+    /* ── Widget Container ─────────────────────────── */
+    .scan-widget {
+      max-width: 540px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(11, 31, 75, 0.12);
+      overflow: hidden;
+      border: 1px solid #E5E7EB;
+    }
+
+    /* ── Header ───────────────────────────────────── */
+    .scan-header {
+      background: linear-gradient(135deg, #0B1F4B 0%, #1E3A6E 100%);
+      padding: 28px 32px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .scan-header::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #C9973A, #1E5FA8);
+    }
+    .scan-header .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 100px;
+      padding: 4px 12px;
+      color: #A0B4D4;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .scan-header .badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: #4ADE80;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .scan-header h2 {
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .scan-header p {
+      color: #A0B4D4;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* ── Social Proof Strip ───────────────────────── */
+    .social-strip {
+      background: #F8FAFC;
+      border-bottom: 1px solid #E5E7EB;
+      padding: 10px 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #6B7280;
+    }
+    .stars {
+      color: #F59E0B;
+      font-size: 13px;
+      letter-spacing: -1px;
+    }
+
+    /* ── Form Body ────────────────────────────────── */
+    .scan-body {
+      padding: 28px 32px 32px;
+    }
+
+    .field-group {
+      margin-bottom: 16px;
+    }
+    .field-group label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    .field-group label span {
+      color: #6B7280;
+      font-weight: 400;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #D1D5DB;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #111827;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      background: #FAFAFA;
+    }
+    .field-input:focus {
+      border-color: #1E5FA8;
+      box-shadow: 0 0 0 3px rgba(30, 95, 168, 0.1);
+      background: #fff;
+    }
+    .field-input.error {
+      border-color: #EF4444;
+    }
+
+    .input-hint {
+      font-size: 11px;
+      color: #9CA3AF;
+      margin-top: 4px;
+    }
+    .input-hint.error-msg {
+      color: #EF4444;
+      display: none;
+    }
+    .field-input.error + .input-hint.error-msg {
+      display: block;
+    }
+
+    /* ── Submit Button ────────────────────────────── */
+    .scan-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #1E5FA8 0%, #0B3D8A 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .scan-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(30, 95, 168, 0.35);
+    }
+    .scan-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    .scan-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .scan-btn .btn-arrow {
+      transition: transform 0.2s;
+    }
+    .scan-btn:hover .btn-arrow {
+      transform: translateX(3px);
+    }
+
+    /* ── Trust Line ───────────────────────────────── */
+    .trust-line {
+      text-align: center;
+      font-size: 11.5px;
+      color: #9CA3AF;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .trust-line span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ── Progress State ───────────────────────────── */
+    .scan-progress {
+      display: none;
+      padding: 28px 32px;
+      text-align: center;
+    }
+    .progress-icon {
+      width: 64px;
+      height: 64px;
+      border: 4px solid #E5E7EB;
+      border-top-color: #1E5FA8;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .progress-steps {
+      list-style: none;
+      text-align: left;
+      max-width: 280px;
+      margin: 16px auto 0;
+    }
+    .progress-steps li {
+      font-size: 13px;
+      color: #6B7280;
+      padding: 5px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .progress-steps li.active {
+      color: #1E5FA8;
+      font-weight: 600;
+    }
+    .progress-steps li.done {
+      color: #10B981;
+    }
+    .step-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #D1D5DB;
+      flex-shrink: 0;
+    }
+    .active .step-dot { background: #1E5FA8; }
+    .done .step-dot { background: #10B981; }
+
+    /* ── Success State ────────────────────────────── */
+    .scan-success {
+      display: none;
+      padding: 32px;
+      text-align: center;
+    }
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background: #D1FAE5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+    }
+    .scan-success h3 {
+      color: #0B1F4B;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .scan-success p {
+      color: #6B7280;
+      font-size: 13.5px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .success-cta {
+      display: inline-block;
+      padding: 10px 24px;
+      background: #0B1F4B;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* ── Error State ──────────────────────────────── */
+    .scan-error {
+      display: none;
+      padding: 24px 32px;
+      text-align: center;
+    }
+    .error-banner {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 8px;
+      padding: 16px;
+      color: #991B1B;
+      font-size: 13px;
+    }
+    .retry-btn {
+      margin-top: 12px;
+      padding: 8px 20px;
+      background: #EF4444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* ── Mobile ───────────────────────────────────── */
+    @media (max-width: 480px) {
+      .scan-header, .scan-body { padding-left: 20px; padding-right: 20px; }
+      .scan-header h2 { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="scan-widget" id="scanWidget">
+
+  <!-- HEADER -->
+  <div class="scan-header">
+    <div class="badge">Free · Ready in 3 minutes</div>
+    <h2>Discover your AI opportunities — for free</h2>
+    <p>We scan your website and send you a personalised report with the 3 biggest AI implementation opportunities for your business.</p>
+  </div>
+
+  <!-- SOCIAL PROOF -->
+  <div class="social-strip">
+    <span class="stars">★★★★★</span>
+    <span>Trusted by 60+ B2B companies</span>
+  </div>
+
+  <!-- FORM -->
+  <div class="scan-body" id="scanForm">
+    <div class="field-group">
+      <label for="websiteInput">Website URL</label>
+      <input
+        type="text"
+        id="websiteInput"
+        class="field-input"
+        placeholder="e.g. www.yourcompany.com"
+        autocomplete="url"
+      />
+      <div class="input-hint error-msg" id="websiteError">Please enter a valid website URL</div>
+    </div>
+
+    <div class="field-group">
+      <label for="emailInput">Email address <span>(for your report)</span></label>
+      <input
+        type="email"
+        id="emailInput"
+        class="field-input"
+        placeholder="name@company.com"
+        autocomplete="email"
+      />
+      <div class="input-hint error-msg" id="emailError">Please enter a valid email address</div>
+    </div>
+
+    <div class="field-group">
+      <label for="companyInput">Company name <span>(optional)</span></label>
+      <input
+        type="text"
+        id="companyInput"
+        class="field-input"
+        placeholder="Your company name"
+        autocomplete="organization"
+      />
+    </div>
+
+    <button class="scan-btn" id="scanBtn" onclick="startScan()">
+      <span>Start my free AI scan</span>
+      <span class="btn-arrow">→</span>
+    </button>
+
+    <div class="trust-line">
+      <span>🔒 No spam</span>
+      <span>⚡ Results in 3 min</span>
+      <span>✓ 100% free</span>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="scan-progress" id="scanProgress">
+    <div class="progress-icon"></div>
+    <strong id="progressTitle" style="color:#0B1F4B; font-size:16px;">Scanning your website...</strong>
+    <ul class="progress-steps">
+      <li class="active" id="step1"><span class="step-dot"></span>Scanning website</li>
+      <li id="step2"><span class="step-dot"></span>AI analysing opportunities</li>
+      <li id="step3"><span class="step-dot"></span>Building your report</li>
+      <li id="step4"><span class="step-dot"></span>Sending report</li>
+    </ul>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="scan-success" id="scanSuccess">
+    <div class="success-icon">📊</div>
+    <h3>Report sent!</h3>
+    <p>
+      Your AI Quick Scan is on its way to your inbox.<br>
+      Check your spam folder if you don't see it within a few minutes.<br><br>
+      Ready to put these opportunities into action?
+    </p>
+    <a href="https://obtained.eu/contact" class="success-cta">Book a free call →</a>
+  </div>
+
+  <!-- ERROR -->
+  <div class="scan-error" id="scanError">
+    <div class="error-banner">
+      <strong>Something went wrong 😕</strong><br>
+      <span id="errorMsg">Please try again or contact us directly.</span>
+    </div>
+    <button class="retry-btn" onclick="resetWidget()">Try again</button>
+  </div>
+
+</div>
+
+<script>
+  // ── Config ──────────────────────────────────────────────────────────────────
+  // Change this to your deployed API URL
+  const API_BASE = "https://api.obtained.eu";  // or http://localhost:8000 for local dev
+
+  // ── State ───────────────────────────────────────────────────────────────────
+  let currentJobId = null;
+  let pollInterval = null;
+
+  // ── Validation ──────────────────────────────────────────────────────────────
+  function isValidUrl(val) {
+    const cleaned = val.replace(/^https?:\/\//, "").replace(/^www\./, "");
+    return cleaned.includes(".") && cleaned.length > 4;
+  }
+
+  function isValidEmail(val) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  }
+
+  // ── UI helpers ──────────────────────────────────────────────────────────────
+  function show(id) { document.getElementById(id).style.display = "block"; }
+  function hide(id) { document.getElementById(id).style.display = "none"; }
+
+  function setStep(status) {
+    const map = { scraping: 1, analyzing: 2, generating: 3, sending: 4 };
+    const active = map[status] || 1;
+
+    const messages = {
+      scraping:   "Scanning your website...",
+      analyzing:  "AI is analysing opportunities...",
+      generating: "Building your report...",
+      sending:    "Sending your report...",
+    };
+
+    document.getElementById("progressTitle").textContent =
+      messages[status] || "Bezig...";
+
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById("step" + i);
+      el.className = i < active ? "done" : i === active ? "active" : "";
+    }
+  }
+
+  // ── Start scan ──────────────────────────────────────────────────────────────
+  async function startScan() {
+    const websiteVal = document.getElementById("websiteInput").value.trim();
+    const emailVal   = document.getElementById("emailInput").value.trim();
+    const companyVal = document.getElementById("companyInput").value.trim();
+
+    // Validate
+    let valid = true;
+    if (!isValidUrl(websiteVal)) {
+      document.getElementById("websiteInput").classList.add("error");
+      valid = false;
+    } else {
+      document.getElementById("websiteInput").classList.remove("error");
+    }
+    if (!isValidEmail(emailVal)) {
+      document.getElementById("emailInput").classList.add("error");
+      valid = false;
+    } else {
+      document.getElementById("emailInput").classList.remove("error");
+    }
+    if (!valid) return;
+
+    // Show progress
+    hide("scanForm");
+    show("scanProgress");
+
+    try {
+      const res = await fetch(`${API_BASE}/scan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          website_url:  websiteVal,
+          email:        emailVal,
+          company_name: companyVal || null,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || "API error");
+      }
+
+      const data = await res.json();
+      currentJobId = data.job_id;
+      pollStatus();
+
+    } catch (e) {
+      showError(e.message);
+    }
+  }
+
+  // ── Poll job status ─────────────────────────────────────────────────────────
+  function pollStatus() {
+    if (pollInterval) clearInterval(pollInterval);
+    pollInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/scan/${currentJobId}`);
+        const data = await res.json();
+
+        if (data.status === "done") {
+          clearInterval(pollInterval);
+          hide("scanProgress");
+          show("scanSuccess");
+        } else if (data.status === "error") {
+          clearInterval(pollInterval);
+          showError(data.error || "Onbekende fout");
+        } else {
+          setStep(data.status);
+        }
+      } catch (e) {
+        clearInterval(pollInterval);
+        showError("Connection lost. Please try again.");
+      }
+    }, 3000);
+  }
+
+  // ── Error state ─────────────────────────────────────────────────────────────
+  function showError(msg) {
+    hide("scanProgress");
+    hide("scanForm");
+    document.getElementById("errorMsg").textContent = msg;
+    show("scanError");
+  }
+
+  // ── Reset widget ────────────────────────────────────────────────────────────
+  function resetWidget() {
+    hide("scanError");
+    hide("scanSuccess");
+    hide("scanProgress");
+    show("scanForm");
+    currentJobId = null;
+    if (pollInterval) clearInterval(pollInterval);
+  }
+</script>
+
+</body>
+</html>
