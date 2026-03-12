@@ -1,12 +1,10 @@
 import re
-import time
 import logging
 import requests
-from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
-HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+HEADERS = {"User-Agent": "Mozilla/5.0"}
 TIMEOUT = 15
 
 def scrape_website(url):
