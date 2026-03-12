@@ -17,7 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr, HttpUrl
 
-from scraper import scrape_website
+from website_scraper import scrape_website
 from ai_analyzer import analyze_website
 from pdf_generator import generate_pdf
 from email_sender import send_report
