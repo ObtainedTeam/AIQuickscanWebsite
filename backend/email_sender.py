@@ -91,7 +91,7 @@ def send_report(to_email: str, analysis: dict, pdf_path: str) -> bool:
     """Send the AI Quick Scan PDF via Brevo API."""
     import httpx
 
-    api_key = os.getenv("BREVO_KEY") or "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"
+    api_key = os.getenv("BREVO_KEY") or "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"
     logger.info(f"Brevo API key present: {bool(api_key)}")
 
     if not api_key:
