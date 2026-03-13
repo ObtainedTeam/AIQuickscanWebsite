@@ -107,7 +107,7 @@ async def run_scan_job(job_id: str, website_url: str, email: str, company_name: 
         jobs[job_id]["status"] = "sending"
         jobs[job_id]["message"] = "Rapport wordt verstuurd..."
         logger.info(f"[{job_id}] Sending email to {email}")
-        #await asyncio.to_thread(send_report, email, analysis, pdf_path)
+        await asyncio.to_thread(send_report, email, analysis, pdf_path)
 
         # 5. Done
         jobs[job_id]["status"] = "done"

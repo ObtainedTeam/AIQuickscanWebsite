@@ -1,24 +1,16 @@
 """
 email_sender.py
-Sends the generated AI Quick Scan PDF to the requester via email.
-Supports SendGrid (preferred) or fallback SMTP.
+Sends the generated AI Quick Scan PDF to the requester via Brevo API.
 """
 
 import os
-import logging
-import smtplib
 import base64
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
-from pathlib import Path
+import logging
 
 logger = logging.getLogger(__name__)
 
-FROM_EMAIL = os.getenv("FROM_EMAIL", "scan@obtained.eu")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "info@obtained.nl")
 FROM_NAME  = os.getenv("FROM_NAME", "Obtained.eu AI Scan")
-
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -95,103 +87,47 @@ def build_opportunities_html(opportunities: list) -> str:
     return html
 
 
-def send_with_sendgrid(to_email: str, subject: str, html_body: str, pdf_path: str, company_name: str):
-    """Send via SendGrid API (preferred for production)."""
-    import sendgrid
-    from sendgrid.helpers.mail import (
-        Mail, Attachment, FileContent, FileName, FileType, Disposition
-    )
-
-    sg = sendgrid.SendGridAPIClient(api_key=os.getenv("SENDGRID_API_KEY"))
-
-    with open(pdf_path, "rb") as f:
-        pdf_data = base64.b64encode(f.read()).decode()
-
-    message = Mail(
-        from_email=(FROM_EMAIL, FROM_NAME),
-        to_emails=to_email,
-        subject=subject,
-        html_content=html_body,
-    )
-
-    attachment = Attachment(
-        FileContent(pdf_data),
-        FileName(f"AI-Quick-Scan-{company_name.replace(' ', '-')}.pdf"),
-        FileType("application/pdf"),
-        Disposition("attachment"),
-    )
-    message.attachment = attachment
-
-    response = sg.send(message)
-    logger.info(f"SendGrid response: {response.status_code}")
-    return response.status_code in (200, 202)
-
-
-def send_with_smtp(to_email: str, subject: str, html_body: str, pdf_path: str, company_name: str):
-    """Fallback SMTP sender."""
-    smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
-    smtp_port = int(os.getenv("SMTP_PORT", "587"))
-    smtp_user = os.getenv("SMTP_USER", "")
-    smtp_pass = os.getenv("SMTP_PASS", "")
-
-    msg = MIMEMultipart("mixed")
-    msg["From"] = f"{FROM_NAME} <{FROM_EMAIL}>"
-    msg["To"] = to_email
-    msg["Subject"] = subject
-
-    # HTML body
-    msg.attach(MIMEText(html_body, "html"))
-
-    # PDF attachment
-    with open(pdf_path, "rb") as f:
-        part = MIMEBase("application", "pdf")
-        part.set_payload(f.read())
-        encoders.encode_base64(part)
-        filename = f"AI-Quick-Scan-{company_name.replace(' ', '-')}.pdf"
-        part.add_header("Content-Disposition", "attachment", filename=filename)
-        msg.attach(part)
-
-    with smtplib.SMTP(smtp_host, smtp_port) as server:
-        server.ehlo()
-        server.starttls()
-        server.login(smtp_user, smtp_pass)
-        server.sendmail(FROM_EMAIL, to_email, msg.as_string())
-
-    logger.info(f"Email sent via SMTP to {to_email}")
-    return True
-
-
 def send_report(to_email: str, analysis: dict, pdf_path: str) -> bool:
-    """
-    Send the AI Quick Scan PDF to the requester.
-    Tries SendGrid first, falls back to SMTP.
-    """
+    """Send the AI Quick Scan PDF via Brevo API."""
+    import httpx
+
+    api_key = os.getenv("BREVO_API_KEY")
+    logger.info(f"Brevo API key present: {bool(api_key)}")
+
+    if not api_key:
+        raise RuntimeError("BREVO_API_KEY is not set.")
+
     company_name = analysis.get("company_name", "Uw bedrijf")
     website = analysis.get("website_url", "")
     opportunities = analysis.get("opportunities", [])
-
-    # Derive first name from email (simple heuristic)
     first_name = to_email.split("@")[0].split(".")[0].capitalize()
 
     opp_html = build_opportunities_html(opportunities)
-
     html_body = HTML_TEMPLATE.format(
         first_name=first_name,
         website=website,
         opportunities_html=opp_html,
     )
 
-    subject = f"Jouw AI Quick Scan voor {company_name} — Obtained.eu"
+    with open(pdf_path, "rb") as f:
+        pdf_data = base64.b64encode(f.read()).decode()
 
-    # Try SendGrid
-    if os.getenv("SENDGRID_API_KEY"):
-        try:
-            return send_with_sendgrid(to_email, subject, html_body, pdf_path, company_name)
-        except Exception as e:
-            logger.warning(f"SendGrid failed: {e}, trying SMTP")
+    payload = {
+        "sender": {"name": FROM_NAME, "email": FROM_EMAIL},
+        "to": [{"email": to_email}],
+        "subject": f"Jouw AI Quick Scan voor {company_name} — Obtained.eu",
+        "htmlContent": html_body,
+        "attachment": [{"content": pdf_data, "name": f"AI-Quick-Scan-{company_name.replace(' ', '-')}.pdf"}]
+    }
 
-    # Fallback to SMTP
-    if os.getenv("SMTP_USER"):
-        return send_with_smtp(to_email, subject, html_body, pdf_path, company_name)
+    response = httpx.post(
+        "https://api.brevo.com/v3/smtp/email",
+        headers={
+            "api-key": api_key,
+            "Content-Type": "application/json"
+        },
+        json=payload
+    )
 
-    raise RuntimeError("No email transport configured. Set SENDGRID_API_KEY or SMTP_USER.")
+    logger.info(f"Brevo response: {response.status_code} — {response.text}")
+    return response.status_code == 201
