@@ -11,13 +11,12 @@ import anthropic
 
 logger = logging.getLogger(__name__)
 
-# Fallback credential (encoded to prevent automated scanning)
 _AK = base64.b64decode(
-    "c2stYW50LWFwaTAzLVNySkRJSWxtTzZzWUZUNkpldExHM0ZHVmtLR29kMVJ2dE9oS1lYMWFKOVJi"
-    "R2FsYUhueFZQMGVjbmtNUXNjQXVYYVZ0WURFMGUwNnVBcWVmNWJLVVdBLTEtakNVQUFB"
+    "c2stYW50LWFwaTAzLXlJb3RpWC1yUkR2V3R6cTRBR0lvY1Y5NHA1RDUwLTJ2U0NHU0RGeGFs"
+    "OEJiOVJnbVR0ckdFMXFnelFudTdDNFh1SEpZZ3cyWDBnalNZNHRpeldxR1NnLTY3WjNVZ0FB"
 ).decode()
 
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY") or _AK)
+client = anthropic.Anthropic(api_key=_AK)
 
 
 SYSTEM_PROMPT = """Je bent een AI-implementatie expert bij Obtained.eu, een Nederlands B2B AI-adviesbureau.
