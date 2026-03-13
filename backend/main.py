@@ -14,8 +14,7 @@ from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, EmailStr, HttpUrl
+from pydantic import BaseModel
 
 from website_scraper import scrape_website
 from ai_analyzer import analyze_website
@@ -25,7 +24,6 @@ from email_sender import send_report
 # ─── Setup ────────────────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.info(f"ENV CHECK - BREVO_KEY present at startup: {bool(os.getenv('BREVO_KEY'))}, value starts with: {str(os.getenv('BREVO_KEY', ''))[:8]}")
 
 OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", "/tmp/ai-scan-reports"))
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -51,7 +49,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ─── In-memory job tracking (use Redis in production) ────────────────────────
+# ─── In-memory job tracking ───────────────────────────────────────────────────
 jobs: dict[str, dict] = {}
 
 
@@ -70,7 +68,7 @@ class ScanResponse(BaseModel):
 
 class JobStatus(BaseModel):
     job_id: str
-    status: str          # "pending" | "scraping" | "analyzing" | "generating" | "sending" | "done" | "error"
+    status: str
     message: str
     created_at: str
     completed_at: Optional[str] = None
@@ -132,11 +130,7 @@ def health():
 
 @app.post("/scan", response_model=ScanResponse)
 async def start_scan(req: ScanRequest, background_tasks: BackgroundTasks):
-    """
-    Start an AI Quick Scan job.
-    Returns a job_id immediately; processing happens in the background.
-    """
-    # Basic URL cleanup
+    """Start an AI Quick Scan job."""
     url = req.website_url.strip()
     if not url.startswith("http"):
         url = "https://" + url
