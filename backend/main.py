@@ -25,7 +25,7 @@ from email_sender import send_report
 # ─── Setup ────────────────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.info(f"ENV CHECK - BREVO_API_KEY present at startup: {bool(os.getenv('BREVO_API_KEY'))}, value starts with: {str(os.getenv('BREVO_API_KEY', ''))[:8]}")
+logger.info(f"ENV CHECK - BREVO_KEY present at startup: {bool(os.getenv('BREVO_KEY'))}, value starts with: {str(os.getenv('BREVO_KEY', ''))[:8]}")
 
 OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", "/tmp/ai-scan-reports"))
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
