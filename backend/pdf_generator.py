@@ -51,7 +51,7 @@ def make_cover_background(canvas_obj, doc):
     canvas_obj.setFont("Helvetica", 8)
     canvas_obj.setFillColor(GRAY_TEXT)
     date_str = datetime.now().strftime("%d-%m-%Y")
-    canvas_obj.drawString(MARGIN_L, 8 * mm, f"Pagina 1 van {doc.total_pages}  •  Gegenereerd op {date_str}")
+    canvas_obj.drawString(MARGIN_L, 8 * mm, f"Pagina 1 van {canvas_obj.total_pages}  •  Gegenereerd op {date_str}")
     canvas_obj.drawRightString(PAGE_WIDTH - MARGIN_R, 8 * mm, "obtained.eu")
     canvas_obj.restoreState()
 
@@ -69,7 +69,7 @@ def make_inner_background(canvas_obj, doc):
     canvas_obj.setFont("Helvetica", 8)
     canvas_obj.setFillColor(GRAY_TEXT)
     date_str = datetime.now().strftime("%d-%m-%Y")
-    canvas_obj.drawString(MARGIN_L, 8 * mm, f"Pagina {doc.page} van {doc.total_pages}  •  {doc.client_name}")
+    canvas_obj.drawString(MARGIN_L, 8 * mm, f"Pagina {canvas_obj._pageNumber} van {canvas_obj.total_pages}  •  {canvas_obj.client_name}")
     canvas_obj.drawRightString(PAGE_WIDTH - MARGIN_R, 8 * mm, "obtained.eu")
     canvas_obj.restoreState()
 
