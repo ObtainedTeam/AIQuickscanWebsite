@@ -19,7 +19,7 @@ _AK = base64.b64decode(
 client = anthropic.Anthropic(api_key=_AK)
 
 
-SYSTEM_PROMPT = """Je bent een AI-implementatie expert bij Obtained.eu, een Nederlands B2B AI-adviesbureau.
+SYSTEM_PROMPT = """Je bent een AI-implementatie expert bij Obtained.nl, een Nederlands B2B AI-adviesbureau.
 Je taak: analyseer een B2B bedrijfswebsite en identificeer de 3 meest waardevolle AI implementatie kansen.
 
 Jij schrijft in zakelijk maar toegankelijk Nederlands.
