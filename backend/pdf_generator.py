@@ -1,7 +1,7 @@
 """
 pdf_generator.py
 Generates a branded "AI Quick Scan" PDF in the style of the Innoworks report.
-Customized for Obtained.eu branding.
+Customized for Obtained.nl branding.
 """
 
 from reportlab.lib.pagesizes import A4
@@ -27,7 +27,7 @@ GRAY_TEXT   = colors.HexColor("#6B7280")   # meta text, footer
 LIGHT_GRAY  = colors.HexColor("#F3F4F6")   # alternating bg
 WHITE       = colors.white
 BLACK       = colors.black
-GOLD        = colors.HexColor("#C9973A")   # Obtained.eu accent
+GOLD        = colors.HexColor("#C9973A")   # obtained.nl accent
 
 PAGE_WIDTH, PAGE_HEIGHT = A4
 MARGIN_L = 20 * mm
@@ -52,7 +52,7 @@ def make_cover_background(canvas_obj, doc):
     canvas_obj.setFillColor(GRAY_TEXT)
     date_str = datetime.now().strftime("%d-%m-%Y")
     canvas_obj.drawString(MARGIN_L, 8 * mm, f"Pagina 1 van {canvas_obj.total_pages}  •  Gegenereerd op {date_str}")
-    canvas_obj.drawRightString(PAGE_WIDTH - MARGIN_R, 8 * mm, "obtained.eu")
+    canvas_obj.drawRightString(PAGE_WIDTH - MARGIN_R, 8 * mm, "obtained.nl")
     canvas_obj.restoreState()
 
 
@@ -70,7 +70,7 @@ def make_inner_background(canvas_obj, doc):
     canvas_obj.setFillColor(GRAY_TEXT)
     date_str = datetime.now().strftime("%d-%m-%Y")
     canvas_obj.drawString(MARGIN_L, 8 * mm, f"Pagina {canvas_obj._pageNumber} van {canvas_obj.total_pages}  •  {canvas_obj.client_name}")
-    canvas_obj.drawRightString(PAGE_WIDTH - MARGIN_R, 8 * mm, "obtained.eu")
+    canvas_obj.drawRightString(PAGE_WIDTH - MARGIN_R, 8 * mm, "obtained.nl")
     canvas_obj.restoreState()
 
 
@@ -300,9 +300,9 @@ def build_cover_page(story, data, styles):
     # White space to clear the navy header band
     story.append(Spacer(1, 38 * mm))
 
-    # "AI Quick Scan" + "Door Obtained.eu"
+    # "AI Quick Scan" + "Door obtained.nl"
     story.append(Paragraph("AI Quick Scan", s["cover_brand"]))
-    story.append(Paragraph("Door Obtained.eu", s["cover_subtitle"]))
+    story.append(Paragraph("Door obtained.nl", s["cover_subtitle"]))
     story.append(Spacer(1, 8 * mm))
 
     # Client name large
@@ -429,7 +429,7 @@ def build_opportunity_page(story, opp, index, total, styles):
     footer_data = [[
         Paragraph(f"<b>Indicatieve doorlooptijd:</b> {opp.get('doorlooptijd', '4-8 weken')}", s["meta"]),
         Paragraph(
-            f"<b>Vergelijkbaar project:</b> <font color='#1E5FA8'>{opp.get('vergelijkbaar', 'obtained.eu/cases')}</font>",
+            f"<b>Vergelijkbaar project:</b> <font color='#1E5FA8'>{opp.get('vergelijkbaar', 'obtained.nl/cases')}</font>",
             s["meta"]
         ),
     ]]
@@ -502,7 +502,7 @@ def build_cta_page(story, styles):
           style=[("VALIGN", (0, 0), (-1, -1), "TOP"), ("LEFTPADDING", (0, 0), (-1, -1), 8)])],
         [Paragraph(" ", s["price_body"])],
         [Paragraph(
-            "Geen verrassingen. Prijs is prijs.  Meer informatie: <font color='#1E5FA8'>obtained.eu/ai-audit</font>",
+            "Geen verrassingen. Prijs is prijs.  Meer informatie: <font color='#1E5FA8'>obtained.nl/ai-audit</font>",
             s["price_body"]
         )],
     ]
@@ -523,13 +523,13 @@ def build_cta_page(story, styles):
     story.append(hr())
     story.append(Paragraph(
         "Vragen of direct een gesprek plannen? Bekijk onze pakketten op "
-        "<font color='#1E5FA8'>obtained.eu/ai-audit</font>",
+        "<font color='#1E5FA8'>obtained.nl/ai-audit</font>",
         s["cta_body"]
     ))
     story.append(Spacer(1, 3 * mm))
-    story.append(Paragraph("Obtained.eu", s["contact_name"]))
-    story.append(Paragraph("info@obtained.eu", s["contact_detail"]))
-    story.append(Paragraph("www.obtained.eu", s["contact_detail"]))
+    story.append(Paragraph("obtained.nl", s["contact_name"]))
+    story.append(Paragraph("info@obtained.nl", s["contact_detail"]))
+    story.append(Paragraph("www.obtained.nl", s["contact_detail"]))
     story.append(Spacer(1, 8 * mm))
 
     # Disclaimer
@@ -541,7 +541,7 @@ def build_cta_page(story, styles):
         ),
         Spacer(1, 2 * mm),
         Paragraph(
-            "Dit rapport is gebaseerd op publiek beschikbare informatie en de ervaring van Obtained.eu "
+            "Dit rapport is gebaseerd op publiek beschikbare informatie en de ervaring van obtained.nl "
             "met vergelijkbare projecten. De genoemde impacts zijn schattingen. Een uitgebreide AI Audit "
             "is nodig voor exacte cijfers en maatwerk implementatie.",
             ParagraphStyle("dis_body", fontName="Helvetica-Oblique", fontSize=7.5,
