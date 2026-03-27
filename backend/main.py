@@ -1,7 +1,7 @@
 """
 main.py
 FastAPI backend for the AI Quick Scan lead funnel.
-Hosted separately, called by the Elementor widget on obtained.eu
+Hosted separately, called by the Elementor widget on obtained.nl
 """
 
 import os
@@ -29,17 +29,17 @@ OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", "/tmp/ai-scan-reports"))
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(
-    title="Obtained.eu AI Quick Scan API",
+    title="Obtained.nl AI Quick Scan API",
     version="1.0.0",
     description="Scrapes a B2B website, generates AI opportunities, emails a PDF report.",
 )
 
-# Allow obtained.eu + localhost for development
+# Allow obtained.nl + localhost for development
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://obtained.eu",
-        "https://www.obtained.eu",
+        "https://obtained.nl",
+        "https://www.obtained.nl",
         "http://localhost",
         "http://localhost:3000",
         "http://127.0.0.1",
@@ -167,7 +167,7 @@ def get_job_status(job_id: str):
 @app.get("/")
 def root():
     return {
-        "service": "Obtained.eu AI Quick Scan",
+        "service": "Obtained.nl AI Quick Scan",
         "docs": "/docs",
         "health": "/health",
     }
