@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 FROM_EMAIL = os.getenv("FROM_EMAIL", "info@obtained.nl")
-FROM_NAME  = os.getenv("FROM_NAME", "Obtained.eu AI Scan")
+FROM_NAME  = os.getenv("FROM_NAME", "Obtained.nl AI Scan")
 
 # Fallback credential (encoded to prevent automated scanning)
 _FB = base64.b64decode(
